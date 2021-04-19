@@ -35,7 +35,13 @@ def get_PupilID(cursor, FirstName, LastName):
     pupilID_existence_cmd = "SELECT PupilID FROM Pupil WHERE FirstName=? AND LastName=?;"
 
     cursor.execute(pupilID_existence_cmd, (FirstName, LastName))
-    PupilID, = cursor.fetchone()
+
+    fetch = cursor.fetchone()
+
+    if fetch:
+        PupilID, = fetch
+    else:
+        PupilID = None
     return PupilID
 
 
@@ -80,27 +86,33 @@ def get_all_subjects(cursor):
 
 # Manage pupil subjects
 
-def add_PupilSubject(cursor, PupilID, SubjectID):
-    add_PupilSubject_cmd = "INSERT INTO PupilSubjects (PupilID, SubjectID) VALUES (?, ?);"
+def add_pupil_subject(cursor, PupilID, SubjectID):
+    add_pupil_subject_cmd = "INSERT INTO PupilSubjects (PupilID, SubjectID) VALUES (?, ?);"
 
-    cursor.execute(add_PupilSubject_cmd, (PupilID, SubjectID))
+    cursor.execute(add_pupil_subject_cmd, (PupilID, SubjectID))
 
-    return get_PupilSubjectID(cursor, PupilID, SubjectID)
+    return get_pupil_subject_id(cursor, PupilID, SubjectID)
 
 
-def get_PupilSubjectID(cursor, PupilID, SubjectID):
-    PupilSubjectID_existence_cmd = "SELECT PupilSubjectID FROM PupilSubjects WHERE PupilID=? AND SubjectID=?;"
+def get_pupil_subject_id(cursor, PupilID, SubjectID):
+    pupil_subject_id_existence_cmd = "SELECT PupilSubjectID FROM PupilSubjects WHERE PupilID=? AND SubjectID=?;"
 
-    cursor.execute(PupilSubjectID_existence_cmd, (PupilID, SubjectID))
-    PupilSubjectID, = cursor.fetchone()
+    cursor.execute(pupil_subject_id_existence_cmd, (PupilID, SubjectID))
+
+    fetch = cursor.fetchone()
+
+    if fetch:
+        PupilSubjectID, = fetch
+    else:
+        PupilSubjectID = None
     return PupilSubjectID
 
 
 # The magic bit - we'll use a JOIN to get a report
 
-def get_all_PupilSubjects(cursor):
-    PupilSubjects_cmd = "SELECT LastName, FirstName, SubjectName FROM Pupil JOIN Subject JOIN PupilSubjects ON Pupil.PupilID=PupilSubjects.PupilID AND Subject.SubjectID=PupilSubjects.SubjectID;"
-    cursor.execute(PupilSubjects_cmd)
+def get_all_pupil_subjects(cursor):
+    pupil_subjects_cmd = 'SELECT LastName, FirstName, SubjectName FROM Pupil JOIN Subject JOIN PupilSubjects ON Pupil.PupilID=PupilSubjects.PupilID AND Subject.SubjectID=PupilSubjects.SubjectID;'
+    cursor.execute(pupil_subjects_cmd)
     return cursor.fetchall()
 
 
@@ -114,15 +126,23 @@ if __name__ == '__main__':
 
         create_tables(cursor)
 
-        BobID = add_pupil(cursor, 'Bob', 'Smith')
-        MathID = add_subject(cursor, 'Mathematics')
+        BobID = get_PupilID(cursor, 'Bob', 'Smith')
 
-        add_PupilSubject(cursor, BobID, MathID)
+        if not BobID:
+            BobID = add_pupil(cursor, 'Bob', 'Smith')
+
+        MathID = get_SubjectID(cursor, 'Mathematics')
+
+        if not MathID:
+            MathID = add_subject(cursor, 'Mathematics')
+
+        if not get_pupil_subject_id(cursor, BobID, MathID):
+            add_pupil_subject(cursor, BobID, MathID)
 
         conn.commit()
 
         while True:
-            for (LastName, FirstName, SubjectName) in get_all_PupilSubjects(cursor):
+            for (LastName, FirstName, SubjectName) in get_all_pupil_subjects(cursor):
                 print(f'{FirstName} {LastName} - {SubjectName}')
 
             print('1 - Add Pupil\n2 - Add Subject\n3 - Add combination')
@@ -140,10 +160,47 @@ if __name__ == '__main__':
                     choice = 3
 
             if choice == 1:
-                LastName = input('Last name: ')
-                FirstName = input('First name: ')
+                last_name = input('Last name: ')
+                first_name = input('First name: ')
 
-                add_pupil(cursor, FirstName, LastName)
+                pupil_id = get_PupilID(cursor, first_name, last_name)
 
+                if pupil_id:
+                    print('Pupil already in database')
+                else:
+                    add_pupil(cursor, first_name, last_name)
+
+            if choice == 2:
+                subject_name = input('Subject name: ')
+
+                subject_id = get_SubjectID(cursor, subject_name)
+
+                if subject_id:
+                    print('Subject already in database')
+                else:
+                    add_subject(cursor, subject_name)
+
+            if choice == 3:
+                pupil_id = None
+
+                while not pupil_id:
+                    last_name = input('Last name: ')
+                    first_name = input('First name: ')
+
+                    pupil_id = get_PupilID(cursor, first_name, last_name)
+
+                subject_id = None
+
+                while not subject_id:
+                    subject_name = input('Subject name: ')
+
+                    subject_id = get_SubjectID(cursor, subject_name)
+
+                pupil_subject_id = get_PupilSubjectID(cursor, pupil_id, subject_id)
+
+                if pupil_subject_id:
+                    print('Combination already in database')
+                else:
+                    add_pupil_subject(cursor, PupilID, SubjectID)
 
 
