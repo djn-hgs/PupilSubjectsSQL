@@ -73,8 +73,13 @@ def get_SubjectID(cursor, SubjectName):
     subjectID_existence_cmd = "SELECT SubjectID FROM Subject WHERE SubjectName=?;"
 
     cursor.execute(subjectID_existence_cmd, (SubjectName,))
-    SubjectID, = cursor.fetchone()
-    return SubjectID
+    fetch = cursor.fetchone()
+
+    if fetch:
+        subject_id, = fetch
+    else:
+        subject_id = None
+    return subject_id
 
 
 def get_all_subjects(cursor):
