@@ -92,7 +92,7 @@ def get_all_subjects(cursor):
 # Manage pupil subjects
 
 def add_pupil_subject(cursor, PupilID, SubjectID):
-    add_pupil_subject_cmd = "INSERT INTO PupilSubjects (PupilID, SubjectID) VALUES (?, ?);"
+    add_pupil_subject_cmd = 'INSERT INTO PupilSubjects (PupilID, SubjectID) VALUES (?, ?);'
 
     cursor.execute(add_pupil_subject_cmd, (PupilID, SubjectID))
 
@@ -116,7 +116,13 @@ def get_pupil_subject_id(cursor, PupilID, SubjectID):
 # The magic bit - we'll use a JOIN to get a report
 
 def get_all_pupil_subjects(cursor):
-    pupil_subjects_cmd = 'SELECT LastName, FirstName, SubjectName FROM Pupil JOIN Subject JOIN PupilSubjects ON Pupil.PupilID=PupilSubjects.PupilID AND Subject.SubjectID=PupilSubjects.SubjectID;'
+    pupil_subjects_cmd = '''SELECT LastName, FirstName, SubjectName
+                            FROM Pupil
+                            JOIN Subject
+                            JOIN PupilSubjects
+                            ON Pupil.PupilID=PupilSubjects.PupilID
+                            AND Subject.SubjectID=PupilSubjects.SubjectID;'''
+
     cursor.execute(pupil_subjects_cmd)
     return cursor.fetchall()
 
