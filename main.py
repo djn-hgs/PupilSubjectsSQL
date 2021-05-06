@@ -9,7 +9,11 @@ def create_tables(cursor):
     cursor.execute("CREATE TABLE IF NOT EXISTS Subject (SubjectID INTEGER PRIMARY KEY, SubjectName TEXT);")
 
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS PupilSubjects (PupilSubjectID INTEGER PRIMARY KEY, PupilID INTEGER, SubjectID INTEGER);")
+        '''CREATE TABLE IF NOT EXISTS PupilSubjects (
+        PupilSubjectID INTEGER PRIMARY KEY,
+        PupilID INTEGER,
+        SubjectID INTEGER
+        );''')
 
     print('Created the tables, if necessary')
 
