@@ -211,11 +211,11 @@ if __name__ == '__main__':
 
                     subject_id = get_SubjectID(cursor, subject_name)
 
-                pupil_subject_id = get_PupilSubjectID(cursor, pupil_id, subject_id)
+                pupil_subject_id = get_pupil_subject_id(cursor, pupil_id, subject_id)
 
                 if pupil_subject_id:
                     print('Combination already in database')
                 else:
-                    add_pupil_subject(cursor, PupilID, SubjectID)
+                    add_pupil_subject(cursor, pupil_id, subject_id)
 
 
